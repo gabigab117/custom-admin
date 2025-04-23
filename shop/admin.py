@@ -17,8 +17,22 @@ class ProductVariantInline(nested_admin.NestedStackedInline):
 
 @admin.register(Product)
 class ProductAdmin(nested_admin.NestedModelAdmin):
-    list_display = ["name", "subcategory"]
+    list_display = ["name", "subcategory", "is_featured", "display_variant_count"]
+    list_editable = ["is_featured"]
+    search_fields = ["name", "description"]
+    autocomplete_fields = ["subcategory"]
+    prepopulated_fields = {"slug": ("name", )}
+    actions = ["mark_as_featured"]
     inlines = [ProductVariantInline]
+    
+    def display_variant_count(self, obj):
+        return obj.variants.count()
+    display_variant_count.short_description = "Nombre de variantes"
+    
+    def mark_as_featured(self, request, queryset):
+        updated = queryset.update(is_featured=True)
+        self.message_user(request, f"{updated} produits ont été marqués comme mis en avant")
+    mark_as_featured.shot_description = "Marquer comme mis en avant"
 
 
 class SubCategoryInline(admin.StackedInline):
@@ -32,3 +46,9 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ["name"]
     prepopulated_fields = {"slug": ("name", )}
     inlines = [SubCategoryInline]
+
+
+@admin.register(SubCategory)
+class SubCategoryAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+
