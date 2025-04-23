@@ -29,6 +29,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField()
     subcategory = models.ForeignKey(SubCategory, related_name='products', on_delete=models.CASCADE)
+    is_featured = models.BooleanField(default=False, verbose_name="Promo")
 
     def __str__(self):
         return self.name
